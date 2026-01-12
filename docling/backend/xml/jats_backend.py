@@ -764,7 +764,7 @@ class JatsDocumentBackend(DeclarativeDocumentBackend):
             elif child.tag == "table-wrap":
                 self._add_tables(doc, parent, child)
                 stop_walk = True
-            elif child.tag == "suplementary-material":
+            elif child.tag == "supplementary-material":
                 stop_walk = True
             elif child.tag == "fn-group":
                 # header = child.xpath(".//title") or child.xpath(".//label")
