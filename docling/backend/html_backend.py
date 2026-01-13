@@ -1026,8 +1026,8 @@ class HTMLDocumentBackend(DeclarativeDocumentBackend):
         return added_ref
 
     def _handle_list(self, tag: Tag, doc: DoclingDocument) -> RefItem:
-        tag_name = tag.name.lower()
-        start: Optional[int] = None
+        tag_name = tag.name. lower()
+        start:  Optional[int] = None
         name: str = ""
         is_ordered = tag_name == "ol"
         if is_ordered:
@@ -1038,7 +1038,7 @@ class HTMLDocumentBackend(DeclarativeDocumentBackend):
         else:
             name = "list"
         # Create the list container
-        list_group = doc.add_list_group(
+        list_group = doc. add_list_group(
             name=name,
             parent=self.parents[self.level],
             content_layer=self.content_layer,
@@ -1048,33 +1048,33 @@ class HTMLDocumentBackend(DeclarativeDocumentBackend):
         if is_ordered and start is not None:
             self.ctx.list_start_by_ref[list_group.self_ref] = start
         self.level += 1
-
+    
         # For each top-level <li> in this list
-        for li in tag.find_all({"li", "ul", "ol"}, recursive=False):
+        for li in tag. find_all({"li", "ul", "ol"}, recursive=False):
             if not isinstance(li, Tag):
                 continue
-
+    
             # sub-list items should be indented under main list items, but temporarily
             # addressing invalid HTML (docling-core/issues/357)
-            if li.name in {"ul", "ol"}:
+            if li.name in {"ul", "ol"}: 
                 self._handle_block(li, doc)
-
+    
             else:
                 # 1) determine the marker
                 if is_ordered and start is not None:
-                    marker = f"{start + len(list_group.children)}."
+                    marker = f"{start + len(list_group. children)}."
                 else:
                     marker = ""
-
+    
                 # 2) extract only the "direct" text from this <li>
                 parts = self._extract_text_and_hyperlink_recursively(
                     li, ignore_list=True, find_parent_annotation=True
                 )
-                min_parts = parts.simplify_text_elements()
+                min_parts = parts. simplify_text_elements()
                 li_text = re.sub(
                     r"\s+|\n+", " ", "".join([el.text for el in min_parts])
                 ).strip()
-
+    
                 # 3) add the list item
                 if li_text:
                     if len(min_parts) > 1:
@@ -1088,38 +1088,38 @@ class HTMLDocumentBackend(DeclarativeDocumentBackend):
                         )
                         self.level += 1
                         with self._use_inline_group(min_parts, doc):
-                            for annotated_text in min_parts:
+                            for annotated_text in min_parts: 
                                 li_text = re.sub(
                                     r"\s+|\n+", " ", annotated_text.text
                                 ).strip()
                                 li_clean = HTMLDocumentBackend._clean_unicode(li_text)
                                 if annotated_text.code:
                                     doc.add_code(
-                                        parent=self.parents[self.level],
+                                        parent=self. parents[self.level],
                                         text=li_clean,
                                         content_layer=self.content_layer,
                                         formatting=annotated_text.formatting,
                                         hyperlink=annotated_text.hyperlink,
                                     )
                                 else:
-                                    doc.add_text(
-                                        parent=self.parents[self.level],
+                                    doc. add_text(
+                                        parent=self.parents[self. level],
                                         label=DocItemLabel.TEXT,
                                         text=li_clean,
-                                        content_layer=self.content_layer,
+                                        content_layer=self. content_layer,
                                         formatting=annotated_text.formatting,
                                         hyperlink=annotated_text.hyperlink,
                                     )
-
+    
                         # 4) recurse into any nested lists, attaching them to this <li> item
                         for sublist in li({"ul", "ol"}, recursive=False):
                             if isinstance(sublist, Tag):
                                 self._handle_block(sublist, doc)
-
+    
                         # now the list element with inline group is not a parent anymore
                         self.parents[self.level] = None
                         self.level -= 1
-                    else:
+                    elif min_parts:
                         annotated_text = min_parts[0]
                         li_text = re.sub(r"\s+|\n+", " ", annotated_text.text).strip()
                         li_clean = HTMLDocumentBackend._clean_unicode(li_text)
@@ -1133,11 +1133,11 @@ class HTMLDocumentBackend(DeclarativeDocumentBackend):
                             formatting=annotated_text.formatting,
                             hyperlink=annotated_text.hyperlink,
                         )
-
+    
                         # 4) recurse into any nested lists, attaching them to this <li> item
                         for sublist in li({"ul", "ol"}, recursive=False):
                             if isinstance(sublist, Tag):
-                                self.level += 1
+                                self. level += 1
                                 self._handle_block(sublist, doc)
                                 self.parents[self.level + 1] = None
                                 self.level -= 1
@@ -1145,15 +1145,15 @@ class HTMLDocumentBackend(DeclarativeDocumentBackend):
                     for sublist in li({"ul", "ol"}, recursive=False):
                         if isinstance(sublist, Tag):
                             self._handle_block(sublist, doc)
-
+    
                 # 5) extract any images under this <li>
                 for img_tag in li("img"):
                     if isinstance(img_tag, Tag):
                         self._emit_image(img_tag, doc)
-
+    
         self.parents[self.level + 1] = None
         self.level -= 1
-        return list_group.get_ref()
+        return list_group. get_ref()
 
     @staticmethod
     def get_html_table_row_col(tag: Tag) -> tuple[int, int]:
